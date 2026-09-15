@@ -42,11 +42,14 @@ export function useCameraStream({ onFrameCaptured, targetFps = 12 }: UseCameraSt
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        videoRef.current.play().catch((e) => {
+          console.warn('Auto-play was prevented, waiting for user interaction:', e);
+        });
       }
       setIsStreaming(true);
     } catch (err: any) {
-      setCameraError(err.message || 'Unable to access webcam');
+      console.error('Camera access error:', err);
+      setCameraError(err.message || 'Unable to access webcam. Please verify camera permissions.');
       setIsStreaming(false);
     }
   }, []);
@@ -113,21 +116,30 @@ export function useCameraStream({ onFrameCaptured, targetFps = 12 }: UseCameraSt
 
   // Handle source switching
   useEffect(() => {
-    if (sourceMode === 'webcam') {
+    // Always keep the webcam running as a live background,
+    // even in demo scenario modes. The camera feed provides
+    // a real-time backdrop while demo overlays render on top.
+    if (!streamRef.current) {
       startWebcam();
-    } else {
-      // In scenario mode, synthetic frames are generated without requiring raw camera
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((t) => t.stop());
-        streamRef.current = null;
-      }
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
-      }
+    }
+
+    if (sourceMode !== 'webcam') {
+      // In scenario mode, synthetic frames are generated without
+      // sending to backend, but the camera stays active for the background.
       setIsStreaming(true);
       setCameraError(null);
     }
   }, [sourceMode, startWebcam]);
+
+  // Synchronize stream with video element whenever isStreaming or sourceMode changes
+  useEffect(() => {
+    if (videoRef.current && streamRef.current) {
+      if (videoRef.current.srcObject !== streamRef.current) {
+        videoRef.current.srcObject = streamRef.current;
+      }
+      videoRef.current.play().catch(() => {});
+    }
+  }, [isStreaming, sourceMode]);
 
   // Clean up on unmount
   useEffect(() => {

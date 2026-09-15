@@ -1,0 +1,27 @@
+# render.yaml — Render Blueprint for BlindSpot Backend
+# Place this at the repo root so Render auto-detects it.
+
+services:
+  - type: web
+    name: blindspot-backend
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: |
+      pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: |
+      bash start.sh
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      - key: PORT
+        generateValue: false
+      - key: DEBUG
+        value: "false"
+      - key: MODEL_NAME
+        value: "yolov8n.pt"
+      - key: DETECTION_CONFIDENCE
+        value: "0.35"
+    healthCheckPath: /health
+    autoDeploy: true

@@ -170,14 +170,14 @@ export const LivePerceptionView: React.FC<LivePerceptionViewProps> = ({
         playsInline
         muted
         className={`w-full h-full object-cover transition-opacity duration-300 ${
-          sourceMode === 'webcam' && isStreaming ? 'opacity-90' : 'opacity-0'
+          isStreaming ? 'opacity-90' : 'opacity-0'
         }`}
       />
 
-      {/* Synthetic Scenario Simulation Canvas Background */}
+      {/* Synthetic Scenario Simulation Overlay (semi-transparent so camera shows through) */}
       {sourceMode !== 'webcam' && (
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 flex items-center justify-center">
-          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-950/40 to-slate-900/60 flex items-center justify-center">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px]" />
         </div>
       )}
 

@@ -1,0 +1,12 @@
+# Auto-generated from pyproject.toml for Render compatibility
+# Render uses this if uv is not available
+fastapi>=0.141.1
+uvicorn[standard]>=0.53.0
+pydantic>=2.13.5
+pydantic-settings>=2.15.0
+opencv-python-headless>=5.0.0.93
+ultralytics>=8.4.152
+numpy>=2.5.3
+websockets>=17.1
+python-multipart>=0.0.32
+httpx>=0.28.1

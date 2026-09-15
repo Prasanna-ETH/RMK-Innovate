@@ -1,6 +1,21 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { FramePerceptionResult, UserMode, CalibrationSettings } from '../types/perception';
 
+// Build the WebSocket URL from the environment variable or fall back to localhost.
+// In Vercel, set VITE_BACKEND_URL to your Render backend URL (e.g. https://blindspot-backend.onrender.com)
+function getDefaultWsUrl(): string {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL as string | undefined;
+  if (backendUrl) {
+    // Convert http(s) URL to ws(s) URL
+    const wsUrl = backendUrl
+      .replace(/^https:\/\//, 'wss://')
+      .replace(/^http:\/\//, 'ws://')
+      .replace(/\/$/, '');
+    return `${wsUrl}/ws/perception`;
+  }
+  return 'ws://localhost:8000/ws/perception';
+}
+
 interface UsePerceptionWebSocketOptions {
   url?: string;
   onResult?: (result: FramePerceptionResult) => void;
@@ -8,7 +23,7 @@ interface UsePerceptionWebSocketOptions {
 }
 
 export function usePerceptionWebSocket({
-  url = 'ws://localhost:8000/ws/perception',
+  url = getDefaultWsUrl(),
   onResult,
   onError,
 }: UsePerceptionWebSocketOptions = {}) {
